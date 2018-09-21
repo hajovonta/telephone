@@ -2,26 +2,24 @@
 
 (in-package #:telephone)
 
-(defparameter my-id "blah1")
-(defparameter instances nil)
+(defparameter acceptor nil)
 (defparameter partners nil)
 (defparameter my-handler nil)
 
 (defparameter selected-partner nil)
 
-(defun start-instance (name-keyword port)
-  (setf (getf instances name-keyword) 
+(defun start-acceptor (port)
+  (setf acceptor 
    (make-instance 'hunchentoot:easy-acceptor :port port :access-log-destination nil))
-  (hunchentoot:start (getf instances name-keyword))
-  (format t "~&Server started, ID: ~a, port: ~a~%" name-keyword port))
+  (hunchentoot:start acceptor)
+  (format t "~&Server started, port: ~a~%" port))
 
 (defun stop-acceptor (name-keyword)
-  (let ((instance (getf instances name-keyword)))
-    (if instance
-        (progn
-          (hunchentoot:stop instance)
-          (setf instance nil))
-        (format t "~&Server is not running.~%"))))
+  (if acceptor
+      (progn
+        (hunchentoot:stop acceptor)
+        (setf acceptor nil))
+      (format t "~&Server is not running.~%")))
 
 (defun setup-handler ()
   (setf my-handler
@@ -51,10 +49,6 @@
 
 (defun get-partner (name-keyword)
   (getf partners name-keyword))
-
-(setup-handler)
-(start-instance :mikrobi 7050)
-(define-partner "http://localhost:7050/h1" :mikrobi)
 
 (defun select-partner (name-keyword)
   (setf selected-partner (get-partner name-keyword)))
