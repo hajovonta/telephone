@@ -21,9 +21,9 @@
         (setf acceptor nil))
       (format t "~&Server is not running.~%")))
 
-(defun setup-handler ()
+(defun setup-handler (uri)
   (setf my-handler
-        (hunchentoot:define-easy-handler (h1 :uri "/h1") (cmd)
+        (hunchentoot:define-easy-handler (h1 :uri (format nil "/~a" uri)) (cmd)
           (let ((*standard-output* *standard-output*))
             (let ((retval
                     (if cmd
@@ -52,3 +52,15 @@
 
 (defun select-partner (name-keyword)
   (setf selected-partner (get-partner name-keyword)))
+
+(defun server-start (uri &optional (port 4242))
+  (unless acceptor
+    (start-acceptor port))
+  (unless my-handler
+    (setup-handler uri)))
+
+;; example usage:
+;; (server-start "test-uri")
+;; (define-partner "http://localhost:4242/test-uri" 'thats-me)
+;; (select-partner 'thats-me)
+;; (remote-command :cmd "(+ 1 2)")
