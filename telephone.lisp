@@ -120,15 +120,20 @@
           (wait-for-result :url url :id id :polling-interval polling-interval))
         'error-no-id)))
 
-(defun calculate-lazy (&key (url selected-partner) cmd)
-  (let ((id (remote-command :url (format nil "~a/tcmd" url) :cmd cmd)))
+(defmacro calculate-lazy (&key (url selected-partner) cmd)
+  (let ((id (remote-command :url (format nil "~a/tcmd" url) :cmd (write-to-string cmd))))
     (lambda () (wait-for-result :url url :id id))))
 
+(defun init ()
+  (server-start)
+  (start-queue-thread)
+  (define-partner "http://localhost:4242" 'me)
+  (select-partner 'me))
+
 ;; example usage:
-;; (server-start)
-;; (start-queue-thread)
-;; (define-partner "http://localhost:4242" 'thats-me)
-;; (select-partner 'thats-me)
+;; (init)
+
+;; send command and get the id
 ;; (remote-command :cmd "(+ 1 2)")
 
 ;; the following will return the status of the calculation and the result if there is available
@@ -139,6 +144,7 @@
 
 ;; the following returns a closure that you can funcall later any time to retrieve the result
 ;; this is the most convenient usage
-;; (calculate-lazy :cmd "(+ 1 2)")
+;; (calculate-lazy :cmd (+ 1 2))
 
 ;; (stop-queue-thread)
+
