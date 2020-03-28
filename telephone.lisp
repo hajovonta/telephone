@@ -106,7 +106,9 @@
 
 ;; example usage:
 ;; (server-start)
+;; (start-queue-thread)
 ;; (define-partner "http://localhost:4242" 'thats-me)
 ;; (select-partner 'thats-me)
 ;; (remote-command :cmd "(+ 1 2)")
 ;; (remote-result :id "whatever-the-id-is-that-you-got")
+;; (stop-queue-thread)
