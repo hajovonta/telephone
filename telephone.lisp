@@ -130,5 +130,15 @@
 ;; (define-partner "http://localhost:4242" 'thats-me)
 ;; (select-partner 'thats-me)
 ;; (remote-command :cmd "(+ 1 2)")
+
+;; the following will return the status of the calculation and the result if there is available
 ;; (remote-result :id "whatever-the-id-is-that-you-got")
+
+;; the following will wait and block until there is a result
+;; (wait-for-result :id "whatever-the-id-is-that-you-have")
+
+;; the following returns a closure that you can funcall later any time to retrieve the result
+;; this is the most convenient usage
+;; (calculate-lazy :cmd "(+ 1 2)")
+
 ;; (stop-queue-thread)
