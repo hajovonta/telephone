@@ -48,7 +48,7 @@
                 (list 'running nil)
                 (list 'finished
                       (sb-thread:join-thread (calculation-thread calc))))
-            (list 'system-down nil))
+            (list 'no-thread nil))
         (list 'id-not-found nil))))
 
 (defun setup-handlers ()
@@ -103,6 +103,26 @@
     (start-acceptor port))
   (unless (and command-handler result-handler)
     (setup-handlers)))
+
+(defun wait-for-result (&key (url selected-partner) id (polling-interval 1))
+  (loop
+     do
+       (let ((result (remote-result :url (format nil "~a/tres" url) :id id)))
+         (when (eq (car result) 'finished)
+           (return (second result))))
+       (sleep polling-interval)))
+
+(defun calculate (&key (url selected-partner) cmd (overhead-interval .1) (polling-interval 1))
+  (let ((id (remote-command :url (format nil "~a/tcmd" url) :cmd cmd)))
+    (if id
+        (progn
+          (sleep overhead-interval)
+          (wait-for-result :url url :id id :polling-interval polling-interval))
+        'error-no-id)))
+
+(defun calculate-lazy (&key (url selected-partner) cmd)
+  (let ((id (remote-command :url (format nil "~a/tcmd" url) :cmd cmd)))
+    (lambda () (wait-for-result :url url :id id))))
 
 ;; example usage:
 ;; (server-start)
